@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORA | Everyday Upgraded</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN for 3D Viewer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #f9f8f6;
+            --text-primary: #121316;
+            --text-secondary: #5a5e6b;
+            --accent-cream: #f2efe9;
+            --silver-light: #ffffff;
+            --silver-mid: #cbd5e1;
+            --silver-dark: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Metallic Silver Text Effect with Fluid Shimmer Animation */
+        .silver-shimmer {
+            background: linear-gradient(
+                120deg, 
+                #1e293b 0%, 
+                #475569 20%, 
+                #f8fafc 40%, 
+                #94a3b8 60%, 
+                #0f172a 100%
+            );
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 6s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Subtle Glass Panel for Light Mode */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-panel-dark {
+            background: #111318;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-slate-200 selection:text-slate-900">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-slate-900 text-slate-200 text-xs py-2 px-4 text-center font-medium tracking-wide">
+        ✨ Free Worldwide Shipping & Express 24h Dispatch | <span class="text-slate-400">Order Today for 100% Risk-Free 30-Day Trial</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-200/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold tracking-wider silver-shimmer">VELORA</span>
+                <span class="text-xs tracking-widest text-slate-400 uppercase font-semibold hidden md:inline-block">| Everyday Upgraded</span>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                <a href="#features" class="hover:text-slate-900 transition-colors">Features</a>
+                <a href="#story" class="hover:text-slate-900 transition-colors">Our Story</a>
+                <a href="#comparison" class="hover:text-slate-900 transition-colors">Why Velora</a>
+                <a href="#reviews" class="hover:text-slate-900 transition-colors">Reviews</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="scrollToOrder()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold uppercase px-5 py-2.5 rounded-full shadow-md transition-all hover:scale-105">
+                    Buy Now
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-6 py-12 md:py-20">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- 3D Interactive Viewer Canvas (6 Columns) -->
+            <div class="lg:col-span-7 relative">
+                <div class="relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-3xl glass-panel p-4 shadow-xl overflow-hidden border border-slate-200">
+                    
+                    <div id="canvas-container" class="w-full h-full rounded-2xl cursor-grab active:cursor-grabbing"></div>
+
+                    <!-- Floating Badges on 3D Canvas -->
+                    <div class="absolute top-8 left-8 bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 text-xs px-3.5 py-1.5 rounded-full shadow-sm font-medium">
+                        3D Interactive Preview
+                    </div>
+
+                    <div class="absolute bottom-8 right-8 bg-slate-900/90 text-white text-xs px-4 py-2 rounded-xl backdrop-blur-md shadow-lg flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-emerald-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <span>Drag to rotate 360°</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Purchase & Info Panel (5 Columns) -->
+            <div class="lg:col-span-5 space-y-6">
+                <div>
+                    <span class="inline-block bg-slate-200/80 text-slate-700 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-md mb-3">
+                        Everyday Upgraded
+                    </span>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight silver-shimmer">
+                        VELORA Mini Hair Straightening Brush
+                    </h1>
+                    <p class="text-slate-600 mt-3 text-sm md:text-base leading-relaxed">
+                        Compact, cordless luxury styling engineered for seamless touch-ups anywhere. Professional heat precision in the palm of your hand.
+                    </p>
+                </div>
+
+                <!-- Ratings Summary -->
+                <div class="flex items-center space-x-3 text-sm">
+                    <div class="flex text-amber-400">
+                        ★★★★★
+                    </div>
+                    <span class="font-bold text-slate-800">4.9 / 5.0</span>
+                    <span class="text-slate-400">|</span>
+                    <a href="#reviews" class="text-slate-500 underline hover:text-slate-800">148+ Verified Reviews</a>
+                </div>
+
+                <!-- Price Block -->
+                <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-baseline justify-between">
+                    <div>
+                        <div class="flex items-baseline space-x-3">
+                            <span class="text-3xl font-extrabold text-slate-900">39,95 €</span>
+                            <span class="text-slate-400 line-through text-sm">69,95 €</span>
+                        </div>
+                        <span class="text-emerald-600 text-xs font-semibold">In Stock — Ships Today</span>
+                    </div>
+                    <span class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-md border border-emerald-200">Save 43%</span>
+                </div>
+
+                <!-- Color Selection -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Select Color Finish</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btn-black" onclick="selectColor('black')" class="flex items-center space-x-3 p-3 rounded-xl border-2 border-slate-900 bg-white shadow-sm transition-all text-left">
+                            <span class="w-5 h-5 rounded-full bg-slate-900 border border-slate-300"></span>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Midnight Black</div>
+                                <div class="text-[10px] text-slate-500">Matte Luxury Finish</div>
+                            </div>
+                        </button>
+
+                        <button id="btn-pink" onclick="selectColor('pink')" class="flex items-center space-x-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-400 transition-all text-left">
+                            <span class="w-5 h-5 rounded-full bg-pink-300 border border-slate-300"></span>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Blush Pink</div>
+                                <div class="text-[10px] text-slate-500">Soft Satin Finish</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buy Action Button -->
+                <div id="order-section" class="space-y-3 pt-2">
+                    <button onclick="addToCart()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        <span class="text-base tracking-wide">ADD TO CART — 39,95 €</span>
+                    </button>
+                    <p class="text-center text-xs text-slate-500 flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span>Guaranteed Safe & Secure Checkout</span>
+                    </p>
+                </div>
+
+                <!-- Value Props Bullet Grid -->
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200">
+                    <div class="flex items-center space-x-2 text-xs text-slate-700">
+                        <svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Compact (88mm)</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-700">
+                        <svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>USB-C Fast Charging</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-700">
+                        <svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Anti-Scald Teeth</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-700">
+                        <svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Auto Shut-Off</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Brand Philosophy Section ("Everyday Upgraded") -->
+    <section id="story" class="py-20 bg-white border-y border-slate-200">
+        <div class="max-w-5xl mx-auto px-6 text-center space-y-8">
+            <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Our Mission</span>
+            <h2 class="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight font-serif-title">
+                "Everyday Upgraded"
+            </h2>
+            <p class="text-slate-600 text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
+                At VELORA, we believe luxury beauty tools shouldn't be confined to your bathroom vanity. We redesign essential daily styling tools into ultra-compact, cordless masterpieces — giving you salon-smooth confidence wherever life takes you.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 text-left">
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="text-slate-900 font-bold mb-2">Effortless Beauty</div>
+                    <div class="text-xs text-slate-600 leading-relaxed">Designed for 3-minute quick touch-ups before meetings, gym sessions, or evening dinners.</div>
+                </div>
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="text-slate-900 font-bold mb-2">Smart & Compact</div>
+                    <div class="text-xs text-slate-600 leading-relaxed">Engineered with precision heating technology packed inside a sleek 88mm pocket-sized frame.</div>
+                </div>
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="text-slate-900 font-bold mb-2">Premium Safety</div>
+                    <div class="text-xs text-slate-600 leading-relaxed">Integrated heat-resistant safety cap and anti-scald outer teeth protect your bag and hair.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Tech Specifications -->
+    <section id="features" class="py-20 max-w-7xl mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-slate-900 silver-shimmer">Engineered Perfection</h2>
+            <p class="text-slate-500 text-sm mt-2">Authentic specifications built for performance & travel ease.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">01</div>
+                <h3 class="font-bold text-slate-900">Ultra Pocket Size</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Dimensions: 88mm × 83mm (65mm without cap). Fits seamlessly in any handbag or travel clutch.</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">02</div>
+                <h3 class="font-bold text-slate-900">USB-C Power</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Rated Power: 25W | Operating Voltage: 3.7V. Recharges easily with standard 5V/2A phone chargers.</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">03</div>
+                <h3 class="font-bold text-slate-900">Smart Heat Control</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">2-Second press power safety activation with automatic heat shut-off protection.</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">04</div>
+                <h3 class="font-bold text-slate-900">Anti-Scald Teeth</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Protective ceramic-coated comb teeth glide through hair smoothly without touching sensitive skin.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table / Why Velora -->
+    <section id="comparison" class="py-20 bg-slate-100/60 border-y border-slate-200">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">Why Velora Stands Out</h2>
+                <p class="text-slate-500 text-sm mt-2">See how our mini brush compares to conventional straighteners.</p>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="p-4 md:p-6 text-slate-500 font-semibold">Feature</th>
+                            <th class="p-4 md:p-6 font-bold text-slate-900 bg-slate-100/80">VELORA Mini Brush</th>
+                            <th class="p-4 md:p-6 text-slate-400 font-medium">Traditional Irons</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="p-4 md:p-6 font-medium text-slate-700">Portability</td>
+                            <td class="p-4 md:p-6 font-bold text-slate-900 bg-slate-50/50">88mm (Pocket-Sized)</td>
+                            <td class="p-4 md:p-6 text-slate-400">Bulky & Cable-bound</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 md:p-6 font-medium text-slate-700">Power Source</td>
+                            <td class="p-4 md:p-6 font-bold text-slate-900 bg-slate-50/50">USB-C Rechargeable</td>
+                            <td class="p-4 md:p-6 text-slate-400">Wall Outlet Required</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 md:p-6 font-medium text-slate-700">Safety Cap</td>
+                            <td class="p-4 md:p-6 font-bold text-slate-900 bg-slate-50/50">Included (Store Warm)</td>
+                            <td class="p-4 md:p-6 text-slate-400">None (Cooling required)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 md:p-6 font-medium text-slate-700">Price</td>
+                            <td class="p-4 md:p-6 font-bold text-slate-900 bg-slate-50/50">39,95 €</td>
+                            <td class="p-4 md:p-6 text-slate-400">80 € - 150 €</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Reviews -->
+    <section id="reviews" class="py-20 max-w-7xl mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-slate-900">Loved by Thousands</h2>
+            <p class="text-slate-500 text-sm mt-2">Real feedback from verified buyers across Europe.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex text-amber-400 text-sm">★★★★★</div>
+                <p class="text-slate-700 text-sm italic">"Perfect for fixing my bangs after cycling to university. Fits right into my small handbag!"</p>
+                <div class="flex items-center space-x-3 pt-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 font-bold text-slate-700 flex items-center justify-center text-xs">SK</div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Sophie K.</div>
+                        <div class="text-[10px] text-emerald-600">Verified Buyer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex text-amber-400 text-sm">★★★★★</div>
+                <p class="text-slate-700 text-sm italic">"The Blush Pink finish looks so elegant in real life. Heats up fast and USB-C charging is super convenient."</p>
+                <div class="flex items-center space-x-3 pt-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 font-bold text-slate-700 flex items-center justify-center text-xs">ML</div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Marie L.</div>
+                        <div class="text-[10px] text-emerald-600">Verified Buyer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex text-amber-400 text-sm">★★★★★</div>
+                <p class="text-slate-700 text-sm italic">"Saved me during long office workdays. Small, stylish, and really smooths out frizzy hair."</p>
+                <div class="flex items-center space-x-3 pt-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 font-bold text-slate-700 flex items-center justify-center text-xs">ER</div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900">Elena R.</div>
+                        <div class="text-[10px] text-emerald-600">Verified Buyer</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer with Social Links -->
+    <footer class="bg-slate-900 text-white py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+                
+                <div>
+                    <span class="text-xl font-bold tracking-wider silver-shimmer">VELORA</span>
+                    <p class="text-xs text-slate-400 mt-1">Everyday Upgraded — Compact Luxury Beauty Tools.</p>
+                </div>
+
+                <!-- Social Handles requested -->
+                <div class="flex items-center space-x-6 text-sm font-medium text-slate-300">
+                    <a href="https://instagram.com" target="_blank" class="hover:text-white transition-colors flex items-center space-x-2">
+                        <span>Instagram:</span>
+                        <span class="text-slate-100 font-bold">@velora.shop</span>
+                    </a>
+                    <a href="https://tiktok.com" target="_blank" class="hover:text-white transition-colors flex items-center space-x-2">
+                        <span>TikTok:</span>
+                        <span class="text-slate-100 font-bold">@velora.shop</span>
+                    </a>
+                </div>
+
+                <div class="text-xs text-slate-500 space-x-4">
+                    <a href="#" class="hover:underline">Privacy Policy</a>
+                    <a href="#" class="hover:underline">Terms of Service</a>
+                    <a href="#" class="hover:underline">Shipping Info</a>
+                </div>
+
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+                &copy; 2026 VELORA. All rights reserved. Prices incl. VAT.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Three.js 3D Model Rendering Script -->
+    <script>
+        let scene, camera, renderer, brushMesh, capMesh, controls;
+        let currentColor = 'black';
+
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xfdfdfd);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(0, 0, 180);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = false;
+
+            // Soft Studio Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight1.position.set(100, 150, 100);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            dirLight2.position.set(-100, -50, -100);
+            scene.add(dirLight2);
+
+            // Create Brush 3D Object Group
+            const brushGroup = new THREE.Group();
+
+            // Main Body (Handle + Comb Base)
+            const bodyGeo = new THREE.CylinderGeometry(18, 16, 75, 32);
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: 0x111318,
+                roughness: 0.85,
+                metalness: 0.1
+            });
+            brushMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            brushGroup.add(brushMesh);
+
+            // Comb Teeth Section (Ceramic Pins)
+            const teethGroup = new THREE.Group();
+            for (let i = -10; i <= 10; i += 4) {
+                for (let j = -8; j <= 8; j += 4) {
+                    const toothGeo = new THREE.CylinderGeometry(0.8, 0.8, 8, 8);
+                    const toothMat = new THREE.MeshStandardMaterial({ color: 0x22252a, roughness: 0.5 });
+                    const tooth = new THREE.Mesh(toothGeo, toothMat);
+                    tooth.position.set(i, 38, j);
+                    teethGroup.add(tooth);
+                }
+            }
+            brushGroup.add(teethGroup);
+
+            // Removable Protective Cap
+            const capGeo = new THREE.CylinderGeometry(19, 19, 40, 32);
+            capMesh = new THREE.Mesh(capGeo, bodyMat);
+            capMesh.position.set(0, -25, 0);
+            brushGroup.add(capMesh);
+
+            scene.add(brushGroup);
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+                brushGroup.rotation.y += 0.005; // Slow ambient rotation
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Resize Handler
+            window.addEventListener('resize', () => {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
+        }
+
+        // Color Switcher Function
+        function selectColor(color) {
+            currentColor = color;
+            const blackBtn = document.getElementById('btn-black');
+            const pinkBtn = document.getElementById('btn-pink');
+
+            if (color === 'black') {
+                brushMesh.material.color.setHex(0x111318);
+                capMesh.material.color.setHex(0x111318);
+                blackBtn.className = "flex items-center space-x-3 p-3 rounded-xl border-2 border-slate-900 bg-white shadow-sm transition-all text-left";
+                pinkBtn.className = "flex items-center space-x-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-400 transition-all text-left";
+            } else {
+                brushMesh.material.color.setHex(0xf4c2c2);
+                capMesh.material.color.setHex(0xf4c2c2);
+                pinkBtn.className = "flex items-center space-x-3 p-3 rounded-xl border-2 border-slate-900 bg-white shadow-sm transition-all text-left";
+                blackBtn.className = "flex items-center space-x-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-400 transition-all text-left";
+            }
+        }
+
+        // Smooth Scroll Helper
+        function scrollToOrder() {
+            document.getElementById('order-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Simple Add to Cart Modal Notification
+        function addToCart() {
+            alert("Added VELORA Mini Brush (" + (currentColor === 'black' ? 'Midnight Black' : 'Blush Pink') + ") to your cart!");
+        }
+
+        // Initialize 3D Scene on Page Load
+        window.onload = init3D;
+    </script>
+</body>
+</html>
