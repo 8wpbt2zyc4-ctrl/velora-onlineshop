@@ -1,1 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORA | To Go Mini Hair Straightener</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fcfbf9;
+            color: #1e293b;
+        }
+
+        .font-cinzel { font-family: 'Cinzel', serif; }
+
+        .silver-shimmer {
+            background: linear-gradient(120deg, #0f172a 0%, #475569 30%, #94a3b8 50%, #334155 70%, #020617 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 8s linear infinite;
+        }
+
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-slate-950 text-slate-300 text-[11px] py-2.5 px-4 text-center font-medium tracking-widest uppercase border-b border-slate-800">
+        Free Worldwide Shipping & Express Dispatch
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold tracking-widest font-cinzel silver-shimmer">VELORA</span>
+            </a>
+            
+            <nav class="hidden md:flex space-x-8 text-xs font-semibold tracking-wider text-slate-600 uppercase">
+                <a href="index.html" class="hover:text-slate-900 transition-colors">Home</a>
+                <a href="product-mini-brush.html" class="text-slate-900 font-bold">Products</a>
+                <a href="index.html#global-express" class="hover:text-slate-900 transition-colors">Global Express</a>
+                <a href="index.html#support" class="hover:text-slate-900 transition-colors">Support</a>
+            </nav>
+
+            <a href="index.html" class="text-xs font-semibold uppercase text-slate-600 hover:text-slate-900 transition-colors">
+                ← Back to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Product Details Section -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- 3D Interactive Straightener Viewer -->
+            <div class="lg:col-span-7">
+                <div class="relative w-full aspect-square max-w-lg mx-auto rounded-3xl glass-panel p-4 shadow-xl border border-slate-200 overflow-hidden">
+                    <div id="product-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                    
+                    <div class="absolute bottom-6 right-6 bg-slate-900/90 text-white text-[11px] px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+                        Drag to rotate 360°
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Specs & Purchase Box -->
+            <div class="lg:col-span-5 space-y-6">
+                <div>
+                    <span class="inline-block bg-slate-200 text-slate-800 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-md mb-2">
+                        In Stock — Express Shipping
+                    </span>
+                    <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 font-cinzel">
+                        To Go Mini Hair Straightener
+                    </h1>
+                    <p class="text-slate-600 mt-2 text-sm leading-relaxed">
+                        Compact, cordless luxury styling engineered for seamless touch-ups anywhere. Professional ceramic heat precision in the palm of your hand.
+                    </p>
+                </div>
+
+                <!-- Price Card -->
+                <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="flex items-baseline space-x-3">
+                            <span class="text-3xl font-extrabold text-slate-900">39,95 €</span>
+                            <span class="text-slate-400 line-through text-sm">69,95 €</span>
+                        </div>
+                        <span class="text-emerald-600 text-xs font-semibold">Save 43% — Incl. VAT</span>
+                    </div>
+                </div>
+
+                <!-- Color Selection -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Color Finish</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btn-black" onclick="setColor('black')" class="p-3 rounded-xl border-2 border-slate-900 bg-white text-left font-bold text-xs flex items-center space-x-2">
+                            <span class="w-4 h-4 rounded-full bg-slate-900"></span>
+                            <span>Midnight Black</span>
+                        </button>
+                        <button id="btn-pink" onclick="setColor('pink')" class="p-3 rounded-xl border border-slate-200 bg-white text-left font-bold text-xs flex items-center space-x-2">
+                            <span class="w-4 h-4 rounded-full bg-pink-300"></span>
+                            <span>Blush Pink</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button onclick="alert('Added to Cart!')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transition-all uppercase tracking-wider text-xs">
+                    Add to Cart — 39,95 €
+                </button>
+
+                <!-- Technical Specs -->
+                <div class="pt-6 border-t border-slate-200 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">Specifications</h3>
+                    <ul class="text-xs text-slate-600 space-y-2">
+                        <li>• <strong>Size:</strong> 88mm x 83mm (Ultra Compact)</li>
+                        <li>• <strong>Power:</strong> USB-C Fast Rechargeable (3.7V / 25W)</li>
+                        <li>• <strong>Safety:</strong> Anti-Scald Teeth & Auto Shut-off</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 3D Mini Brush Renderer -->
+    <script>
+        let scene, camera, renderer, brushMesh, capMesh;
+
+        (function init3DBrush() {
+            const container = document.getElementById('product-canvas-container');
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xfcfbf9);
+
+            camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+            camera.position.set(0, 0, 160);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+            const light = new THREE.DirectionalLight(0xffffff, 0.8);
+            light.position.set(50, 100, 50);
+            scene.add(light);
+
+            const group = new THREE.Group();
+
+            // Main Body
+            const bodyGeo = new THREE.CylinderGeometry(18, 16, 75, 32);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111318, roughness: 0.8 });
+            brushMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            group.add(brushMesh);
+
+            // Cap
+            const capGeo = new THREE.CylinderGeometry(19, 19, 40, 32);
+            capMesh = new THREE.Mesh(capGeo, bodyMat);
+            capMesh.position.set(0, -25, 0);
+            group.add(capMesh);
+
+            scene.add(group);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                group.rotation.y += 0.005;
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+        })();
+
+        function setColor(color) {
+            const blackBtn = document.getElementById('btn-black');
+            const pinkBtn = document.getElementById('btn-pink');
+
+            if (color === 'black') {
+                brushMesh.material.color.setHex(0x111318);
+                capMesh.material.color.setHex(0x111318);
+                blackBtn.className = "p-3 rounded-xl border-2 border-slate-900 bg-white text-left font-bold text-xs flex items-center space-x-2";
+                pinkBtn.className = "p-3 rounded-xl border border-slate-200 bg-white text-left font-bold text-xs flex items-center space-x-2";
+            } else {
+                brushMesh.material.color.setHex(0xf4c2c2);
+                capMesh.material.color.setHex(0xf4c2c2);
+                pinkBtn.className = "p-3 rounded-xl border-2 border-slate-900 bg-white text-left font-bold text-xs flex items-center space-x-2";
+                blackBtn.className = "p-3 rounded-xl border border-slate-200 bg-white text-left font-bold text-xs flex items-center space-x-2";
+            }
+        }
+    </script>
+</body>
+</html>
 
